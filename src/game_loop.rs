@@ -19,7 +19,7 @@ pub fn two_player_loop() {
             }
         }
     }
-    print_outcome(&board);
+    print_outcome(&board, true);
 }
 
 pub fn single_player_loop() {
@@ -43,7 +43,7 @@ pub fn single_player_loop() {
             }
         }
     }
-    print_outcome(&board);
+    print_outcome(&board, false);
 }
 
 fn select_move(_board: &GameBoard) -> usize {
@@ -68,12 +68,21 @@ fn prompt_player(board: &GameBoard, current_player: &Symbol) -> usize {
     }
 }
 
-fn print_outcome(board: &GameBoard) {
+fn print_outcome(board: &GameBoard, two_player: bool) {
     let outcome = board.outcome.unwrap();
     print_board_with(&board, cell_or_blank);
     match outcome {
         Outcome::Tie => println!("The result is a tie."),
-        Outcome::Winner(symbol) => println!("The winner is {}. Congratulations!", symbol),
+        Outcome::Winner(symbol) => match symbol {
+            Symbol::O => println!("The winner is O. Congratulations!"),
+            Symbol::X => {
+                if two_player {
+                    println!("The winner is X. Congratulations!")
+                } else {
+                    println!("The winner is X. Try again.")
+                }
+            }
+        },
     }
 }
 
