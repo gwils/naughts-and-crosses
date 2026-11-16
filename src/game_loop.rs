@@ -1,3 +1,4 @@
+use rand::RngExt;
 use std::io::{self, Write};
 
 use crate::game_state::{Cell, GameBoard, Outcome, Symbol};
@@ -18,16 +19,40 @@ pub fn two_player_loop() {
             }
         }
     }
-    let outcome = board.outcome.unwrap();
-    print_board_with(&board, cell_or_number);
-    match outcome {
-        Outcome::Tie => println!("The result is a tie."),
-        Outcome::Winner(symbol) => println!("The winner is {}. Congratulations!", symbol),
+    print_outcome(&board);
+}
+
+pub fn single_player_loop() {
+    let mut board = GameBoard::new();
+    let mut current_player = Symbol::O;
+    while board.outcome.is_none() {
+        let loc: usize = match current_player {
+            Symbol::O => prompt_player(&board, &current_player),
+            Symbol::X => select_move(&board),
+        };
+        match board.place(current_player, loc) {
+            None => {
+                // Move on to next turn
+                current_player = current_player.opposite()
+            }
+            Some(error) => {
+                // print the error if the player made the error, then try again
+                if current_player == Symbol::O {
+                    println!("{}", error.message());
+                }
+            }
+        }
     }
+    print_outcome(&board);
+}
+
+fn select_move(_board: &GameBoard) -> usize {
+    let mut rng = rand::rng();
+    return rng.random_range(1..10);
 }
 
 fn prompt_player(board: &GameBoard, current_player: &Symbol) -> usize {
-    print_board_with(board, cell_or_blank);
+    print_board_with(board, cell_or_number);
     print!("Enter your selection: ");
     let _ = io::stdout().flush();
     let mut input = String::new();
@@ -40,6 +65,15 @@ fn prompt_player(board: &GameBoard, current_player: &Symbol) -> usize {
             println!("Sorry, I didn't understand that. Try again.");
             return prompt_player(board, current_player);
         }
+    }
+}
+
+fn print_outcome(board: &GameBoard) {
+    let outcome = board.outcome.unwrap();
+    print_board_with(&board, cell_or_blank);
+    match outcome {
+        Outcome::Tie => println!("The result is a tie."),
+        Outcome::Winner(symbol) => println!("The winner is {}. Congratulations!", symbol),
     }
 }
 

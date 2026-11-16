@@ -13,7 +13,7 @@ fn main() {
         println!("Starting two player game.");
         game_loop::two_player_loop();
     } else {
-        println!("Starting single player game");
-        println!("Not implemented.");
+        println!("Starting single player game.");
+        game_loop::single_player_loop();
     }
 }
