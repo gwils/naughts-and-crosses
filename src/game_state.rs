@@ -1,10 +1,31 @@
+use crate::errors::Error;
+
 #[derive(Clone, Copy, PartialEq, Eq)]
 
 pub enum Symbol {
-    Naught,
-    Cross,
+    O,
+    X,
 }
 
+impl Symbol {
+    pub fn opposite(&self) -> Symbol {
+        match self {
+            Symbol::O => Symbol::X,
+            Symbol::X => Symbol::O,
+        }
+    }
+}
+
+impl std::fmt::Display for Symbol {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Symbol::O => write!(f, "O"),
+            Symbol::X => write!(f, "X"),
+        }
+    }
+}
+
+#[derive(Clone, Copy)]
 pub enum Outcome {
     Winner(Symbol),
     Tie,
@@ -16,26 +37,21 @@ pub enum Cell {
     Empty,
 }
 
-pub enum Error {
-    CellAlreadyTaken,
-    LocationOutOfBounds,
-}
-
 pub struct GameBoard {
-    board: Vec<Vec<Cell>>,
-    outcome: Option<Outcome>,
+    pub cells: Vec<Vec<Cell>>,
+    pub outcome: Option<Outcome>,
 }
 
 impl GameBoard {
     pub fn new() -> Self {
-        let board = vec![
+        let cells = vec![
             vec![Cell::Empty, Cell::Empty, Cell::Empty],
             vec![Cell::Empty, Cell::Empty, Cell::Empty],
             vec![Cell::Empty, Cell::Empty, Cell::Empty],
         ];
 
         return GameBoard {
-            board,
+            cells,
             outcome: None,
         };
     }
@@ -60,13 +76,13 @@ impl GameBoard {
     fn lookup_cell(&self, loc: usize) -> &Cell {
         let row = loc / 3;
         let col = loc % 3;
-        return &self.board[row][col];
+        return &self.cells[row][col];
     }
 
     fn lookup_cell_mut(&mut self, loc: usize) -> &mut Cell {
         let row = loc / 3;
         let col = loc % 3;
-        return &mut self.board[row][col];
+        return &mut self.cells[row][col];
     }
 
     fn check_outcome(&self) -> Option<Outcome> {
@@ -90,7 +106,7 @@ impl GameBoard {
     }
 
     fn check_for_tie(&self) -> Option<Outcome> {
-        for v in &self.board {
+        for v in &self.cells {
             for c in v {
                 if *c == Cell::Empty {
                     return None;
