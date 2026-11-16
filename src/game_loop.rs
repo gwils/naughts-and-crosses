@@ -19,7 +19,7 @@ pub fn two_player_loop() {
         }
     }
     let outcome = board.outcome.unwrap();
-    print_board(&board);
+    print_board_with(&board, cell_or_number);
     match outcome {
         Outcome::Tie => println!("The result is a tie."),
         Outcome::Winner(symbol) => println!("The winner is {}. Congratulations!", symbol),
@@ -27,7 +27,7 @@ pub fn two_player_loop() {
 }
 
 fn prompt_player(board: &GameBoard, current_player: &Symbol) -> usize {
-    print_board_with_options(board);
+    print_board_with(board, cell_or_blank);
     print!("Enter your selection: ");
     let _ = io::stdout().flush();
     let mut input = String::new();
@@ -43,35 +43,11 @@ fn prompt_player(board: &GameBoard, current_player: &Symbol) -> usize {
     }
 }
 
-fn print_board(board: &GameBoard) {
-    let cells = &board.cells;
-    // row 1
-    println!(
-        "{}|{}|{}",
-        cell_or_blank(&cells[0][0]),
-        cell_or_blank(&cells[0][1]),
-        cell_or_blank(&cells[0][2])
-    );
-    println!("-----");
-    //row 2
-    println!(
-        "{}|{}|{}",
-        cell_or_blank(&cells[1][0]),
-        cell_or_blank(&cells[1][1]),
-        cell_or_blank(&cells[1][2])
-    );
-    println!("-----");
-    //row 3
-    println!(
-        "{}|{}|{}",
-        cell_or_blank(&cells[2][0]),
-        cell_or_blank(&cells[2][1]),
-        cell_or_blank(&cells[2][2])
-    );
-}
-
-fn print_board_with_options(board: &GameBoard) {
-    let cells = &board.cells;
+fn print_board_with<F>(board: &GameBoard, cell_or: F)
+where
+    F: Fn(&Cell, usize) -> String,
+{
+    let cells: &Vec<Vec<Cell>> = &board.cells;
     // row 1
     println!(
         "{}|{}|{}",
@@ -97,7 +73,7 @@ fn print_board_with_options(board: &GameBoard) {
     );
 }
 
-fn cell_or(cell: &Cell, loc: usize) -> String {
+fn cell_or_number(cell: &Cell, loc: usize) -> String {
     match cell {
         Cell::Empty => format!("{}", loc),
         Cell::Taken(Symbol::O) => String::from("O"),
@@ -105,7 +81,7 @@ fn cell_or(cell: &Cell, loc: usize) -> String {
     }
 }
 
-fn cell_or_blank(cell: &Cell) -> String {
+fn cell_or_blank(cell: &Cell, _loc: usize) -> String {
     match cell {
         Cell::Empty => String::from(" "),
         Cell::Taken(Symbol::O) => String::from("O"),
